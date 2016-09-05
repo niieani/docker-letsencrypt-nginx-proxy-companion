@@ -6,7 +6,7 @@ ENV DEBUG=false              \
 	DOCKER_GEN_VERSION=0.7.3 \
 	DOCKER_HOST=unix:///var/run/docker.sock
 
-RUN apk --update add bash curl ca-certificates procps jq tar && \
+RUN apk --update add bash curl ca-certificates procps jq tar inotify-tools && \
 	curl -L -O https://github.com/jwilder/docker-gen/releases/download/$DOCKER_GEN_VERSION/docker-gen-linux-amd64-$DOCKER_GEN_VERSION.tar.gz && \
 	tar -C /usr/local/bin -xvzf docker-gen-linux-amd64-$DOCKER_GEN_VERSION.tar.gz && \
 	rm -f docker-gen-linux-amd64-$DOCKER_GEN_VERSION.tar.gz && \

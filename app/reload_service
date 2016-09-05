@@ -1,0 +1,25 @@
+#!/bin/bash
+
+source /app/functions.sh
+
+reload_on_new_certificate() {
+    # monitor for future changes to the certificate/config and reload accordingly
+    inotifywait --quiet --recursive --monitor --event modify --event create --format "%w%f" "/etc/nginx" | \
+    while read change
+    do
+        @debounce reload_nginx
+    done
+}
+
+pid=
+# Service Loop: When this script exits, start it again.
+trap '[[ $pid ]] && kill $pid; exec $0' EXIT
+trap 'trap - EXIT' INT TERM
+
+reload_on_new_certificate
+
+# Wait some amount of time
+echo "Sleep for ${seconds_to_wait}s"
+sleep $seconds_to_wait & pid=$!
+wait
+pid=

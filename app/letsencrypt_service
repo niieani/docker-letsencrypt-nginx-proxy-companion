@@ -93,7 +93,7 @@ update_certs() {
             # Add all the domains to certificate
             params_d_str+=" -d $domain"
             # Add location configuration for the domain
-            add_location_configuration "$domain" || reload_nginx
+            add_location_configuration "$domain" || @debounce reload_nginx
         done
 
         echo "Creating/renewal $base_domain certificates... (${hosts_array_expanded[*]})"
@@ -118,7 +118,7 @@ update_certs() {
         done
     done
 
-    [[ "$reload_nginx" == 'true' ]] && reload_nginx
+    [[ "$reload_nginx" == 'true' ]] && @debounce reload_nginx
 }
 
 pid=

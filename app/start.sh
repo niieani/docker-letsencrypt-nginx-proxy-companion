@@ -4,6 +4,7 @@
 term_handler() {
     [[ -n "$docker_gen_pid" ]] && kill $docker_gen_pid
     [[ -n "$letsencrypt_service_pid" ]] && kill $letsencrypt_service_pid
+    [[ -n "$reload_service_pid" ]] && kill $reload_service_pid
 
     source /app/functions.sh
     remove_all_location_configurations
@@ -13,8 +14,13 @@ term_handler() {
 
 trap 'term_handler' INT QUIT KILL TERM
 
-/app/letsencrypt_service &
-letsencrypt_service_pid=$!
+if [[ "$RELOAD_ONLY" != "true" ]]; then
+    /app/letsencrypt_service &
+    letsencrypt_service_pid=$!
+fi
+
+/app/reload_service &
+reload_service_pid=$!
 
 docker-gen -watch -only-exposed -notify '/app/update_certs' -wait 15s:60s /app/letsencrypt_service_data.tmpl /app/letsencrypt_service_data &
 docker_gen_pid=$!

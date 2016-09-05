@@ -82,7 +82,31 @@ reload_nginx() {
     fi
 }
 
+## Debounce used for nginx reloading
+declare -i throttle_by=5
+@debounce() {
+    if [[ ! -f /tmp/.executing ]]
+    then
+        touch /tmp/.executing
+        "$@"
+        retVal=$?
+        {
+            sleep $throttle_by
+            if [[ -f /tmp/.on-finish ]]
+            then
+                "$@"
+                rm -f /tmp/.on-finish
+            fi
+            rm -f /tmp/.executing
+        } &
+        return $retVal
+    elif [[ ! -f /tmp/.on-finish ]]
+    then
+        touch /tmp/.on-finish
+    fi
+}
+
 # Convert argument to lowercase (bash 4 only)
 function lc() {
-	echo "${@,,}"
+    echo "${@,,}"
 }
